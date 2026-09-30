@@ -1,0 +1,22 @@
+name: ZivexShards
+version: ${version}
+main: me.voidflame.zivexshards.ZivexShardsPlugin
+api-version: '26.2'
+author: VoidFlame
+description: Central Shards currency and player-facing shard wallet GUI for VoidFlameMC.
+softdepend:
+  - VoidFlame-Core
+commands:
+  shards:
+    description: Open your Shards wallet.
+    usage: /shards
+    permission: zivexshards.use
+  shardsadmin:
+    description: Administrative Shards management.
+    usage: /shardsadmin <give|take|set|balance|reload>
+    permission: zivexshards.admin
+permissions:
+  zivexshards.use:
+    default: true
+  zivexshards.admin:
+    default: op
