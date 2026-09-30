@@ -5,10 +5,23 @@ plugins {
 group = 'me.voidflame'
 version = '1.0.0'
 
-repositories { mavenCentral(); maven { url = uri('https://repo.papermc.io/repository/maven-public/') } }
+repositories {
+    mavenCentral()
+    maven { url = uri('https://repo.papermc.io/repository/maven-public/') }
+}
 
-dependencies { compileOnly 'io.papermc.paper:paper-api:26.2.build-SNAPSHOT' }
+dependencies {
+    compileOnly 'io.papermc.paper:paper-api:26.2-R0.1-SNAPSHOT'
+}
 
-java { toolchain { languageVersion = JavaLanguageVersion.of(25) } }
+java {
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(25)
+    }
+}
 
-processResources { filesMatching('plugin.yml') { expand(version: project.version) } }
+processResources {
+    filesMatching('plugin.yml') {
+        expand(version: project.version)
+    }
+}
