@@ -15,3 +15,10 @@ jobs:
           java-version: '25'
       - uses: gradle/actions/setup-gradle@v4
       - run: gradle build --no-daemon
+      - name: Upload JAR
+        if: success()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ZivexShards
+          path: build/libs/*.jar
+          if-no-files-found: error
