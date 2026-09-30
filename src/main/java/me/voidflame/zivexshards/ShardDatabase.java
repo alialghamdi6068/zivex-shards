@@ -11,14 +11,15 @@ final class ShardDatabase {
 
     ShardDatabase(ZivexShardsPlugin plugin) {
         this.plugin = plugin;
-        this.file = new File(plugin.getDataFolder(), "database.db");
+        this.file = new File(plugin.getDataFolder(), plugin.getConfig().getString("settings.database-file", "../Zivex/database.db"));
         open();
     }
 
     private synchronized void open() {
         try {
-            if (!plugin.getDataFolder().exists() && !plugin.getDataFolder().mkdirs()) {
-                throw new SQLException("Could not create plugin data folder");
+            File parent = file.getParentFile();
+            if (parent != null && !parent.exists() && !parent.mkdirs()) {
+                throw new SQLException("Could not create database directory");
             }
 
             Class.forName("org.sqlite.JDBC");
