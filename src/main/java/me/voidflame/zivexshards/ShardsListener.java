@@ -1,23 +1,40 @@
 package me.voidflame.zivexshards;
 
+import org.bukkit.entity.Player;
 import org.bukkit.event.*;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryDragEvent;
-import org.bukkit.entity.Player;
 
 final class ShardsListener implements Listener {
- private final ZivexShardsPlugin plugin;
- ShardsListener(ZivexShardsPlugin p){plugin=p;}
- @EventHandler public void click(InventoryClickEvent e){
-  if(!(e.getWhoClicked() instanceof Player p))return;
-  String title=ZivexShardsPlugin.color(plugin.getConfig().getString("settings.gui-title","&8Your Shards"));
-  if(!e.getView().getTitle().equals(title))return;
-  e.setCancelled(true);
-  int close=plugin.getConfig().getInt("settings.close-slot",22);
-  if(e.getRawSlot()==close)p.closeInventory();
- }
- @EventHandler public void drag(InventoryDragEvent e){
-  String title=ZivexShardsPlugin.color(plugin.getConfig().getString("settings.gui-title","&8Your Shards"));
-  if(e.getView().getTitle().equals(title))e.setCancelled(true);
- }
+    private final ZivexShardsPlugin plugin;
+
+    ShardsListener(ZivexShardsPlugin plugin) {
+        this.plugin = plugin;
+    }
+
+    private String title() {
+        return ZivexShardsPlugin.color(
+                plugin.getConfig().getString("settings.gui.title", "&8Shards")
+        );
+    }
+
+    @EventHandler
+    public void click(InventoryClickEvent event) {
+        if (!(event.getWhoClicked() instanceof Player player)) return;
+        if (!event.getView().getTitle().equals(title())) return;
+
+        event.setCancelled(true);
+
+        int close = plugin.getConfig().getInt("settings.gui.close-slot", 22);
+        if (event.getRawSlot() == close) {
+            player.closeInventory();
+        }
+    }
+
+    @EventHandler
+    public void drag(InventoryDragEvent event) {
+        if (event.getView().getTitle().equals(title())) {
+            event.setCancelled(true);
+        }
+    }
 }
