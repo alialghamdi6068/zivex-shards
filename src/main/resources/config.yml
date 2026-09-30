@@ -5,14 +5,12 @@ settings:
   balance-slot: 13
   close-slot: 22
   sounds: true
-  allow-negative: false
   max-balance: 2147483647
 
 core:
   required: true
   plugin: "VoidFlame-Core"
   database-service-getter: "getDatabaseService"
-  # The adapter is intentionally configurable because Core's public database API may evolve.
   execute-method: "execute"
   query-method: "query"
 
