@@ -1,8 +1,12 @@
 package me.voidflame.zivexshards;
 
 import org.bukkit.Bukkit;
+import org.bukkit.Material;
 import org.bukkit.command.*;
 import org.bukkit.entity.Player;
+import org.bukkit.inventory.Inventory;
+import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.ItemMeta;
 import java.util.*;
 
 final class ShardsCommand implements CommandExecutor, TabCompleter {
@@ -30,6 +34,17 @@ final class ShardsCommand implements CommandExecutor, TabCompleter {
   target.sendMessage(plugin.msg("changed-by-admin").replace("{balance}",Long.toString(bal)));
   plugin.sound(target,"success"); return true;
  }
- private void openWallet(Player p){p.sendMessage(plugin.msg("balance").replace("{player}","You").replace("{balance}",Long.toString(plugin.service().getBalance(p.getUniqueId()))));plugin.sound(p,"open");}
+ private void openWallet(Player p){
+  int size=plugin.getConfig().getInt("settings.gui-size",27); if(size<9||size>54||size%9!=0)size=27;
+  Inventory inv=Bukkit.createInventory(null,size,ZivexShardsPlugin.color(plugin.getConfig().getString("settings.gui-title","&8Your Shards")));
+  int slot=plugin.getConfig().getInt("settings.balance-slot",13);
+  ItemStack item=new ItemStack(Material.AMETHYST_SHARD); ItemMeta meta=item.getItemMeta();
+  meta.setDisplayName(ZivexShardsPlugin.color("&d&lShards"));
+  meta.setLore(List.of(ZivexShardsPlugin.color("&7Your current balance"),ZivexShardsPlugin.color("&8"),ZivexShardsPlugin.color("&d"+plugin.service().getBalance(p.getUniqueId())+" Shards")));
+  item.setItemMeta(meta); if(slot>=0&&slot<size)inv.setItem(slot,item);
+  int close=plugin.getConfig().getInt("settings.close-slot",22); if(close>=0&&close<size)inv.setItem(close,button(Material.BARRIER,"&cClose","&7Close this menu"));
+  p.openInventory(inv); plugin.sound(p,"open");
+ }
+ private ItemStack button(Material m,String name,String lore){ItemStack i=new ItemStack(m);ItemMeta x=i.getItemMeta();x.setDisplayName(ZivexShardsPlugin.color(name));x.setLore(List.of(ZivexShardsPlugin.color(lore)));i.setItemMeta(x);return i;}
  @Override public List<String> onTabComplete(CommandSender s,Command c,String l,String[] a){if(!c.getName().equalsIgnoreCase("shardsadmin"))return List.of();if(a.length==1)return List.of("give","take","set","balance","reload");if(a.length==2)return Bukkit.getOnlinePlayers().stream().map(Player::getName).sorted().toList();return List.of();}
 }
