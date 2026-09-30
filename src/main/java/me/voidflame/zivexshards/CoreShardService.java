@@ -22,11 +22,9 @@ final class CoreShardService implements ShardService {
 
     @Override
     public boolean deposit(UUID uuid, long amount) {
-        if (amount < 0) return false;
-        long current = getBalance(uuid);
         long max = plugin.getConfig().getLong("settings.max-balance", Integer.MAX_VALUE);
-        if (current > max - amount) return false;
-        return db.setBalance(uuid, current + amount);
+        if (amount < 0 || max < 0) return false;
+        return db.deposit(uuid, amount, max);
     }
 
     @Override
