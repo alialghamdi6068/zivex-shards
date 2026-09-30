@@ -1,34 +1,43 @@
+# إعدادات Zivex Shards
+# كل النصوص التي تظهر للاعبين بالإنجليزية. التعليقات فقط للشرح.
+
 settings:
-  prefix: "&8[&dShards&8] &r"
-  gui-title: "&8Your Shards"
-  gui-size: 27
-  balance-slot: 13
-  close-slot: 22
+  enabled: true
+  debug: false
+  prefix: "&5&lZivex &8» "
+  gui:
+    title: "&8Shards"
+    size: 27
+    balance-slot: 13
+    close-slot: 22
   sounds: true
   max-balance: 2147483647
 
-core:
-  required: true
-  plugin: "VoidFlame-Core"
-  database-service-getter: "getDatabaseService"
-  execute-method: "execute"
-  query-method: "query"
-
 messages:
   no-permission: "&cYou don't have permission."
-  player-only: "&cThis command is for players."
-  reloaded: "&aShards configuration reloaded."
-  unavailable: "&cThe Shards service is temporarily unavailable."
+  player-only: "&cThis command can only be used by a player."
+  reloaded: "&aZivex Shards configuration reloaded."
+  unavailable: "&cThe Shards service is currently unavailable."
   invalid-number: "&cEnter a valid non-negative whole number."
   player-not-found: "&cPlayer not found."
-  usage-admin: "&cUsage: /shardsadmin <give|take|set|balance|reload> ..."
-  gave: "&aGave &f{amount} &aShards to &f{player}&a. New balance: &f{balance}&a."
-  took: "&aRemoved &f{amount} &aShards from &f{player}&a. New balance: &f{balance}&a."
-  set: "&aSet &f{player}&a's Shards to &f{balance}&a."
-  balance: "&f{player}&a has &d{balance} &aShards."
-  changed-by-admin: "&dYour Shards balance was updated to &f{balance}&d."
+  usage-admin: "&cUsage: /shardsadmin <give|take|set|balance|reload> <player> [amount]"
+  gave: "&aGave &d{amount} Shards &ato &f{player}&a. New balance: &d{balance}&a."
+  took: "&aRemoved &d{amount} Shards &afrom &f{player}&a. New balance: &d{balance}&a."
+  set: "&aSet &f{player}&a's balance to &d{balance} Shards&a."
+  balance: "&f{player} &ahas &d{balance} Shards&a."
+  insufficient: "&c{player} does not have enough Shards."
+  changed-by-admin: "&dYour Shards balance is now &f{balance}&d."
 
 sounds:
-  open: { sound: "BLOCK_AMETHYST_BLOCK_CHIME", volume: 0.8, pitch: 1.0 }
-  success: { sound: "ENTITY_PLAYER_LEVELUP", volume: 0.7, pitch: 1.1 }
-  fail: { sound: "ENTITY_VILLAGER_NO", volume: 0.7, pitch: 1.0 }
+  open:
+    sound: "BLOCK_AMETHYST_BLOCK_CHIME"
+    volume: 0.8
+    pitch: 1.0
+  success:
+    sound: "ENTITY_PLAYER_LEVELUP"
+    volume: 0.7
+    pitch: 1.1
+  fail:
+    sound: "ENTITY_VILLAGER_NO"
+    volume: 0.7
+    pitch: 1.0
