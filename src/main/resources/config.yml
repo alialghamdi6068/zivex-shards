@@ -12,6 +12,8 @@ settings:
     close-slot: 22
   sounds: true
   max-balance: 2147483647
+  # ملف SQLite المشترك بين أنظمة Zivex.
+  database-file: "../Zivex/database.db"
 
 messages:
   no-permission: "&cYou don't have permission."
