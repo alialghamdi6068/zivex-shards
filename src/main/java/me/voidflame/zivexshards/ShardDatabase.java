@@ -73,6 +73,23 @@ final class ShardDatabase {
         }
     }
 
+    synchronized boolean deposit(UUID uuid, long amount, long maxBalance) {
+        if (amount < 0 || maxBalance < 0) return false;
+        try (PreparedStatement ps = connection.prepareStatement("""
+                INSERT INTO player_shards(uuid, balance) VALUES(?, ?)
+                ON CONFLICT(uuid) DO UPDATE SET balance = balance + excluded.balance
+                WHERE balance <= ? - excluded.balance
+                """)) {
+            ps.setString(1, uuid.toString());
+            ps.setLong(2, amount);
+            ps.setLong(3, maxBalance);
+            return ps.executeUpdate() == 1;
+        } catch (SQLException ex) {
+            plugin.getLogger().severe("Failed to deposit Shards: " + ex.getMessage());
+            return false;
+        }
+    }
+
     synchronized boolean withdraw(UUID uuid, long amount) {
         if (amount < 0) return false;
         try (PreparedStatement ps = connection.prepareStatement("""
