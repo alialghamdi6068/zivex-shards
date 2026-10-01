@@ -7,4 +7,5 @@ public interface ShardService {
     boolean deposit(UUID player, long amount);
     boolean withdraw(UUID player, long amount);
     boolean setBalance(UUID player, long amount);
+    boolean transfer(UUID from, UUID to, long amount);
 }
