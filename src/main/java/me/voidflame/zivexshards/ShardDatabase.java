@@ -26,7 +26,7 @@ final class ShardDatabase {
             connection = DriverManager.getConnection("jdbc:sqlite:" + file.getAbsolutePath());
 
             try (Statement statement = connection.createStatement()) {
-                statement.execute("PRAGMA journal_mode=DELETE");
+                statement.execute("PRAGMA journal_mode=WAL");
                 statement.execute("PRAGMA foreign_keys=ON");
                 statement.execute("PRAGMA busy_timeout=5000");
                 statement.execute("""
@@ -104,6 +104,62 @@ final class ShardDatabase {
         } catch (SQLException ex) {
             plugin.getLogger().severe("Failed to withdraw Shards: " + ex.getMessage());
             return false;
+        }
+    }
+
+    synchronized boolean transfer(UUID from, UUID to, long amount, long maxBalance) {
+        if (from == null || to == null || from.equals(to) || amount <= 0 || maxBalance < 0) return false;
+
+        boolean previousAutoCommit = true;
+        try {
+            previousAutoCommit = connection.getAutoCommit();
+            connection.setAutoCommit(false);
+
+            try (PreparedStatement withdraw = connection.prepareStatement("""
+                    UPDATE player_shards
+                    SET balance = balance - ?
+                    WHERE uuid = ? AND balance >= ?
+                    """);
+                 PreparedStatement ensureTarget = connection.prepareStatement("""
+                    INSERT INTO player_shards(uuid, balance) VALUES(?, 0)
+                    ON CONFLICT(uuid) DO NOTHING
+                    """);
+                 PreparedStatement deposit = connection.prepareStatement("""
+                    UPDATE player_shards
+                    SET balance = balance + ?
+                    WHERE uuid = ? AND balance <= ? - ?
+                    """)) {
+
+                withdraw.setLong(1, amount);
+                withdraw.setString(2, from.toString());
+                withdraw.setLong(3, amount);
+                if (withdraw.executeUpdate() != 1) {
+                    connection.rollback();
+                    return false;
+                }
+
+                ensureTarget.setString(1, to.toString());
+                ensureTarget.executeUpdate();
+
+                deposit.setLong(1, amount);
+                deposit.setString(2, to.toString());
+                deposit.setLong(3, maxBalance);
+                deposit.setLong(4, amount);
+                if (deposit.executeUpdate() != 1) {
+                    connection.rollback();
+                    return false;
+                }
+
+                connection.commit();
+                return true;
+            }
+        } catch (SQLException ex) {
+            try { connection.rollback(); } catch (SQLException ignored) {}
+            plugin.getLogger().severe("Failed to transfer Shards: " + ex.getMessage());
+            return false;
+        } finally {
+            try { connection.setAutoCommit(previousAutoCommit); }
+            catch (SQLException ex) { plugin.getLogger().warning("Failed to restore database transaction mode: " + ex.getMessage()); }
         }
     }
 
