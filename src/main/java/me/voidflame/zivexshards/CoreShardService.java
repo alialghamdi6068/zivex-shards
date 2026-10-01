@@ -39,4 +39,11 @@ final class CoreShardService implements ShardService {
         if (amount < 0 || amount > max) return false;
         return db.setBalance(uuid, amount);
     }
+
+    @Override
+    public boolean transfer(UUID from, UUID to, long amount) {
+        long max = plugin.getConfig().getLong("settings.max-balance", Integer.MAX_VALUE);
+        if (amount <= 0 || max < 0 || from == null || to == null || from.equals(to)) return false;
+        return db.transfer(from, to, amount, max);
+    }
 }
