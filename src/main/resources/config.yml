@@ -1,5 +1,5 @@
-# إعدادات Zivex Shards
-# كل النصوص التي تظهر للاعبين بالإنجليزية. التعليقات فقط للشرح.
+# ZivexShards Configuration
+# All player-facing text is English.
 
 settings:
   enabled: true
@@ -12,7 +12,6 @@ settings:
     close-slot: 22
   sounds: true
   max-balance: 2147483647
-  # ملف SQLite المشترك بين أنظمة Zivex.
   database-file: "../Zivex/database.db"
 
 messages:
@@ -20,8 +19,11 @@ messages:
   player-only: "&cThis command can only be used by a player."
   reloaded: "&aZivex Shards configuration reloaded."
   unavailable: "&cThe Shards service is currently unavailable."
-  invalid-number: "&cEnter a valid non-negative whole number."
-  player-not-found: "&cPlayer not found."
+  invalid-number: "&cEnter a valid positive whole number."
+  player-not-found: "&cPlayer not found or the player is offline."
+  usage-player: "&cUsage: /shards [balance|pay <player> <amount>|help]"
+  usage-transfer: "&cUsage: /shards pay <player> <amount>"
+  balance-self: "&fYour balance: &d{balance} Shards&f."
   usage-admin: "&cUsage: /shardsadmin <give|take|set|balance|reload> <player> [amount]"
   gave: "&aGave &d{amount} Shards &ato &f{player}&a. New balance: &d{balance}&a."
   took: "&aRemoved &d{amount} Shards &afrom &f{player}&a. New balance: &d{balance}&a."
@@ -29,6 +31,14 @@ messages:
   balance: "&f{player} &ahas &d{balance} Shards&a."
   insufficient: "&c{player} does not have enough Shards."
   changed-by-admin: "&dYour Shards balance is now &f{balance}&d."
+  self-transfer: "&cYou cannot transfer Shards to yourself."
+  transfer-failed: "&cThe Shards transfer could not be completed."
+  sent: "&aSent &d{amount} Shards &ato &f{player}&a. Your balance: &d{balance}&a."
+  received: "&dYou received &f{amount} Shards &dfrom &f{player}&d. Your balance: &f{balance}&d."
+  help-header: "&5&lShards Help"
+  help-balance: "&7/shards balance &8- &fView your balance"
+  help-pay: "&7/shards pay <player> <amount> &8- &fTransfer Shards"
+  help-wallet: "&7/shards &8- &fOpen your wallet"
 
 sounds:
   open:
