@@ -1,13 +1,13 @@
 package me.voidflame.zivexshards;
 
 import org.bukkit.Bukkit;
-import org.bukkit.Material;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.command.*;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
+import org.bukkit.Material;
 
 import java.util.*;
 
@@ -37,8 +37,7 @@ final class ShardsCommand implements CommandExecutor, TabCompleter {
                 player.sendMessage(plugin.msg("no-permission"));
                 return true;
             }
-            openWallet(player);
-            return true;
+            return handlePlayerCommand(player, args);
         }
 
         if (!admin(sender)) return true;
@@ -137,6 +136,83 @@ final class ShardsCommand implements CommandExecutor, TabCompleter {
         return true;
     }
 
+    private boolean handlePlayerCommand(Player player, String[] args) {
+        if (args.length == 0) {
+            openWallet(player);
+            return true;
+        }
+
+        String sub = args[0].toLowerCase(Locale.ROOT);
+        switch (sub) {
+            case "balance" -> {
+                long balance = plugin.service().getBalance(player.getUniqueId());
+                if (balance < 0) player.sendMessage(plugin.msg("unavailable"));
+                else player.sendMessage(plugin.msg("balance-self").replace("{balance}", Long.toString(balance)));
+            }
+            case "pay", "send", "transfer" -> transfer(player, args);
+            case "help" -> sendHelp(player);
+            default -> player.sendMessage(plugin.msg("usage-player"));
+        }
+        return true;
+    }
+
+    private void transfer(Player sender, String[] args) {
+        if (args.length < 3) {
+            sender.sendMessage(plugin.msg("usage-transfer"));
+            return;
+        }
+
+        Player target = Bukkit.getPlayerExact(args[1]);
+        if (target == null) {
+            sender.sendMessage(plugin.msg("player-not-found"));
+            return;
+        }
+        if (target.getUniqueId().equals(sender.getUniqueId())) {
+            sender.sendMessage(plugin.msg("self-transfer"));
+            return;
+        }
+
+        long amount;
+        try {
+            amount = Long.parseLong(args[2]);
+            if (amount <= 0) throw new NumberFormatException();
+        } catch (NumberFormatException ex) {
+            sender.sendMessage(plugin.msg("invalid-number"));
+            return;
+        }
+
+        if (!plugin.service().transfer(sender.getUniqueId(), target.getUniqueId(), amount)) {
+            long balance = plugin.service().getBalance(sender.getUniqueId());
+            if (balance >= 0 && balance < amount) {
+                sender.sendMessage(plugin.msg("insufficient").replace("{player}", sender.getName()));
+            } else {
+                sender.sendMessage(plugin.msg("transfer-failed"));
+            }
+            return;
+        }
+
+        long senderBalance = plugin.service().getBalance(sender.getUniqueId());
+        long targetBalance = plugin.service().getBalance(target.getUniqueId());
+
+        sender.sendMessage(plugin.msg("sent")
+                .replace("{amount}", Long.toString(amount))
+                .replace("{player}", target.getName())
+                .replace("{balance}", Long.toString(senderBalance)));
+        target.sendMessage(plugin.msg("received")
+                .replace("{amount}", Long.toString(amount))
+                .replace("{player}", sender.getName())
+                .replace("{balance}", Long.toString(targetBalance)));
+        plugin.sound(sender, "success");
+        plugin.sound(target, "success");
+    }
+
+    private void sendHelp(Player player) {
+        player.sendMessage(plugin.msg("help-header"));
+        player.sendMessage(plugin.msg("help-balance"));
+        player.sendMessage(plugin.msg("help-pay"));
+        player.sendMessage(plugin.msg("help-wallet"));
+    }
+
     private void openWallet(Player player) {
         int size = plugin.getConfig().getInt("settings.gui.size", 27);
         if (size != 27) size = 27;
@@ -155,7 +231,8 @@ final class ShardsCommand implements CommandExecutor, TabCompleter {
         meta.setLore(List.of(
                 ZivexShardsPlugin.color("&7Your current balance"),
                 ZivexShardsPlugin.color("&8"),
-                ZivexShardsPlugin.color("&d" + balance + " Shards")
+                ZivexShardsPlugin.color("&d" + balance + " Shards"),
+                ZivexShardsPlugin.color("&7Use &f/shards pay <player> <amount> &7to transfer.")
         ));
         item.setItemMeta(meta);
 
@@ -184,21 +261,25 @@ final class ShardsCommand implements CommandExecutor, TabCompleter {
     @Override
     public List<String> onTabComplete(CommandSender sender, Command command, String alias, String[] args) {
         if (!command.getName().equalsIgnoreCase("shardsadmin")
-                || !sender.hasPermission("zivexshards.admin")) {
+                && !command.getName().equalsIgnoreCase("shards")) {
             return List.of();
         }
 
-        if (args.length == 1) {
-            return List.of("give", "take", "set", "balance", "reload");
+        if (command.getName().equalsIgnoreCase("shards") && sender instanceof Player) {
+            if (args.length == 1) return List.of("balance", "pay", "send", "transfer", "help");
+            if (args.length == 2 && Set.of("pay", "send", "transfer").contains(args[0].toLowerCase(Locale.ROOT))) {
+                return Bukkit.getOnlinePlayers().stream()
+                        .map(Player::getName)
+                        .filter(name -> !name.equalsIgnoreCase(sender.getName()))
+                        .sorted()
+                        .toList();
+            }
+            return List.of();
         }
 
-        if (args.length == 2) {
-            return Bukkit.getOnlinePlayers().stream()
-                    .map(Player::getName)
-                    .sorted()
-                    .toList();
-        }
-
+        if (!sender.hasPermission("zivexshards.admin")) return List.of();
+        if (args.length == 1) return List.of("give", "take", "set", "balance", "reload");
+        if (args.length == 2) return Bukkit.getOnlinePlayers().stream().map(Player::getName).sorted().toList();
         return List.of();
     }
 }
