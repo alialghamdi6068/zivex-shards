@@ -3,11 +3,11 @@ version: ${version}
 main: me.voidflame.zivexshards.ZivexShardsPlugin
 api-version: '26.2'
 author: Zivex
-description: Shards currency and player wallet system.
+description: Professional Shards currency and player wallet system.
 commands:
   shards:
-    description: Open the Shards wallet.
-    usage: /shards
+    description: Open your Shards wallet and manage player transfers.
+    usage: /shards [balance|pay|send|transfer|help]
     permission: zivexshards.use
   shardsadmin:
     description: Manage player Shards.
