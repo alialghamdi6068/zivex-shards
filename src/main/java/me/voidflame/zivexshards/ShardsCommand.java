@@ -283,4 +283,9 @@ final class ShardsCommand implements CommandExecutor, TabCompleter {
         return List.of();
     }
 }
-\n\nfinal class WalletHolder implements org.bukkit.inventory.InventoryHolder {\n    @Override\n    public Inventory getInventory() { return null; }\n}\n
+
+
+final class WalletHolder implements org.bukkit.inventory.InventoryHolder {
+    @Override
+    public Inventory getInventory() { return null; }
+}
