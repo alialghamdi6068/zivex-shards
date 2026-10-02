@@ -220,7 +220,7 @@ final class ShardsCommand implements CommandExecutor, TabCompleter {
         String title = ZivexShardsPlugin.color(
                 plugin.getConfig().getString("settings.gui.title", "&8Shards")
         );
-        Inventory inventory = Bukkit.createInventory(null, size, title);
+        Inventory inventory = Bukkit.createInventory(new WalletHolder(), size, title);
 
         int balanceSlot = plugin.getConfig().getInt("settings.gui.balance-slot", 13);
         ItemStack item = new ItemStack(Material.AMETHYST_SHARD);
@@ -283,3 +283,4 @@ final class ShardsCommand implements CommandExecutor, TabCompleter {
         return List.of();
     }
 }
+\n\nfinal class WalletHolder implements org.bukkit.inventory.InventoryHolder {\n    @Override\n    public Inventory getInventory() { return null; }\n}\n
