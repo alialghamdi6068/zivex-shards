@@ -21,7 +21,7 @@ final class ShardsListener implements Listener {
     @EventHandler
     public void click(InventoryClickEvent event) {
         if (!(event.getWhoClicked() instanceof Player player)) return;
-        if (!event.getView().getTitle().equals(title())) return;
+        if (!(event.getView().getTopInventory().getHolder() instanceof WalletHolder)) return;
 
         event.setCancelled(true);
 
@@ -33,7 +33,7 @@ final class ShardsListener implements Listener {
 
     @EventHandler
     public void drag(InventoryDragEvent event) {
-        if (event.getView().getTitle().equals(title())) {
+        if (event.getView().getTopInventory().getHolder() instanceof WalletHolder) {
             event.setCancelled(true);
         }
     }
