@@ -31,7 +31,7 @@ public final class ZivexShardsPlugin extends JavaPlugin {
             ShardsCommand command = new ShardsCommand(this);
             PluginCommand shards = getCommand("shards");
             PluginCommand admin = getCommand("shardsadmin");
-            if (shards != null) shards.setExecutor(command);
+            if (shards != null) { shards.setExecutor(command); shards.setTabCompleter(command); }
             if (admin != null) {
                 admin.setExecutor(command);
                 admin.setTabCompleter(command);
