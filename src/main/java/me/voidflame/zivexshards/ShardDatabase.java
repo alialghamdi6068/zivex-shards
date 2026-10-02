@@ -46,6 +46,7 @@ final class ShardDatabase {
     }
 
     synchronized long getBalance(UUID uuid) {
+        if (uuid == null) return -1L;
         try (PreparedStatement ps = connection.prepareStatement(
                 "SELECT balance FROM player_shards WHERE uuid = ?")) {
             ps.setString(1, uuid.toString());
@@ -59,7 +60,7 @@ final class ShardDatabase {
     }
 
     synchronized boolean setBalance(UUID uuid, long amount) {
-        if (amount < 0) return false;
+        if (uuid == null || amount < 0) return false;
         try (PreparedStatement ps = connection.prepareStatement("""
                 INSERT INTO player_shards(uuid, balance) VALUES(?, ?)
                 ON CONFLICT(uuid) DO UPDATE SET balance = excluded.balance
@@ -74,7 +75,7 @@ final class ShardDatabase {
     }
 
     synchronized boolean deposit(UUID uuid, long amount, long maxBalance) {
-        if (amount < 0 || maxBalance < 0) return false;
+        if (uuid == null || amount < 0 || maxBalance < 0 || amount > maxBalance) return false;
         try (PreparedStatement ps = connection.prepareStatement("""
                 INSERT INTO player_shards(uuid, balance) VALUES(?, ?)
                 ON CONFLICT(uuid) DO UPDATE SET balance = balance + excluded.balance
@@ -91,7 +92,7 @@ final class ShardDatabase {
     }
 
     synchronized boolean withdraw(UUID uuid, long amount) {
-        if (amount < 0) return false;
+        if (uuid == null || amount < 0) return false;
         try (PreparedStatement ps = connection.prepareStatement("""
                 UPDATE player_shards
                 SET balance = balance - ?
@@ -108,7 +109,7 @@ final class ShardDatabase {
     }
 
     synchronized boolean transfer(UUID from, UUID to, long amount, long maxBalance) {
-        if (from == null || to == null || from.equals(to) || amount <= 0 || maxBalance < 0) return false;
+        if (from == null || to == null || from.equals(to) || amount <= 0 || maxBalance < 0 || amount > maxBalance) return false;
 
         boolean previousAutoCommit = true;
         try {
